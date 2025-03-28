@@ -1,18 +1,18 @@
 name: Cascade Merge
- 
+
 on:
   schedule:
     - cron: '0 0 * * *' # Runs every day at midnight UTC
-  workflow_dispatch: # Allows manual triggering of the workflow - via the ui ?
- 
+  workflow_dispatch:
+
 jobs:
   merge_cascade:
     runs-on: ubuntu-latest
- 
+
     steps:
     - name: Checkout
       uses: actions/checkout@v2
- 
+
     - name: Set up Git
       run: |
         git config --global user.name 'automated-github-actions-via-hans'
@@ -35,7 +35,11 @@ jobs:
       run: |
         git fetch origin
         git checkout develop-refactor-current
-        git merge origin/develop --allow-unrelated-histories || echo "Conflict detected" && exit 1
+        git merge origin/develop --allow-unrelated-histories || {
+          echo "Conflict detected, aborting merge"
+          git merge --abort
+          exit 1
+        }
         git push origin develop-refactor-current
 
     - name: Create PR for develop-refactor-current
@@ -47,63 +51,63 @@ jobs:
         title: 'Merge develop into develop-refactor-current'
         body: 'Automated merge of develop into develop-refactor-current'
 
-    - name: Check for changes between develop-refactor-current and develop-main-next-1
-      id: check_changes_main_next_1
-      run: |
-        git fetch origin
-        if git diff --quiet origin/develop-refactor-current origin/develop-main-next-1; then
-          echo "No changes detected"
-          echo "changes=false" >> $GITHUB_ENV
-        else
-          echo "Changes detected"
-          echo "changes=true" >> $GITHUB_ENV
-        fi
+    # - name: Check for changes between develop-refactor-current and develop-main-next-1
+    #   id: check_changes_main_next_1
+    #   run: |
+    #     git fetch origin
+    #     if git diff --quiet origin/develop-refactor-current origin/develop-main-next-1; then
+    #       echo "No changes detected"
+    #       echo "changes=false" >> $GITHUB_ENV
+    #     else
+    #       echo "Changes detected"
+    #       echo "changes=true" >> $GITHUB_ENV
+    #     fi
 
-    - name: Merge develop-refactor-current into develop-main-next-1
-      if: env.changes == 'true'
-      run: |
-        git fetch origin
-        git checkout develop-main-next-1
-        git merge origin/develop-refactor-current --allow-unrelated-histories || echo "Conflict detected" && exit 1
-        git push origin develop-main-next-1
+    # - name: Merge develop-refactor-current into develop-main-next-1
+    #   if: env.changes == 'true'
+    #   run: |
+    #     git fetch origin
+    #     git checkout develop-main-next-1
+    #     git merge origin/develop-refactor-current --allow-unrelated-histories || echo "Conflict detected" && exit 1
+    #     git push origin develop-main-next-1
 
-    - name: Create PR for develop-main-next-1
-      if: env.changes == 'true'
-      uses: peter-evans/create-pull-request@v3
-      with:
-        token: ${{ secrets.GITHUB_TOKEN }}
-        branch: develop-main-next-1
-        title: 'Merge develop-refactor-current into develop-main-next-1'
-        body: 'Automated merge of develop-refactor-current into develop-main-next-1'
+    # - name: Create PR for develop-main-next-1
+    #   if: env.changes == 'true'
+    #   uses: peter-evans/create-pull-request@v3
+    #   with:
+    #     token: ${{ secrets.GITHUB_TOKEN }}
+    #     branch: develop-main-next-1
+    #     title: 'Merge develop-refactor-current into develop-main-next-1'
+    #     body: 'Automated merge of develop-refactor-current into develop-main-next-1'
 
-    - name: Check for changes between develop-main-next-1 and develop-refactor-next-1
-      id: check_changes_refactor_next_1
-      run: |
-        git fetch origin
-        if git diff --quiet origin/develop-main-next-1 origin/develop-refactor-next-1; then
-          echo "No changes detected"
-          echo "changes=false" >> $GITHUB_ENV
-        else
-          echo "Changes detected"
-          echo "changes=true" >> $GITHUB_ENV
-        fi
+    # - name: Check for changes between develop-main-next-1 and develop-refactor-next-1
+    #   id: check_changes_refactor_next_1
+    #   run: |
+    #     git fetch origin
+    #     if git diff --quiet origin/develop-main-next-1 origin/develop-refactor-next-1; then
+    #       echo "No changes detected"
+    #       echo "changes=false" >> $GITHUB_ENV
+    #     else
+    #       echo "Changes detected"
+    #       echo "changes=true" >> $GITHUB_ENV
+    #     fi
 
-    - name: Merge develop-main-next-1 into develop-refactor-next-1
-      if: env.changes == 'true'
-      run: |
-        git fetch origin
-        git checkout develop-refactor-next-1
-        git merge origin/develop-main-next-1 --allow-unrelated-histories || echo "Conflict detected" && exit 1
-        git push origin develop-refactor-next-1
+    # - name: Merge develop-main-next-1 into develop-refactor-next-1
+    #   if: env.changes == 'true'
+    #   run: |
+    #     git fetch origin
+    #     git checkout develop-refactor-next-1
+    #     git merge origin/develop-main-next-1 --allow-unrelated-histories || echo "Conflict detected" && exit 1
+    #     git push origin develop-refactor-next-1
 
-    - name: Create PR for develop-refactor-next-1
-      if: env.changes == 'true'
-      uses: peter-evans/create-pull-request@v3
-      with:
-        token: ${{ secrets.GITHUB_TOKEN }}
-        branch: develop-refactor-next-1
-        title: 'Merge develop-main-next-1 into develop-refactor-next-1'
-        body: 'Automated merge of develop-main-next-1 into develop-refactor-next-1'
+    # - name: Create PR for develop-refactor-next-1
+    #   if: env.changes == 'true'
+    #   uses: peter-evans/create-pull-request@v3
+    #   with:
+    #     token: ${{ secrets.GITHUB_TOKEN }}
+    #     branch: develop-refactor-next-1
+    #     title: 'Merge develop-main-next-1 into develop-refactor-next-1'
+    #     body: 'Automated merge of develop-main-next-1 into develop-refactor-next-1'
 
     - name: Notify team of conflicts
       if: failure()

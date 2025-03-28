@@ -60,11 +60,11 @@ jobs:
       run: |
         pr_url=$(gh pr view --json url --jq '.url' develop-refactor-current-merge)
         while true; do
-          pr_status=$(gh pr checks $pr_url --json status --jq '.status')
-          if [[ $pr_status == 'completed' ]]; then
+          pr_mergeable=$(gh pr view $pr_url --json mergeable --jq '.mergeable')
+          if [[ $pr_mergeable == 'true' ]]; then
             break
           fi
-          echo "Waiting for PR checks to complete..."
+          echo "Waiting for PR to be mergeable..."
           sleep 60
         done
 

@@ -47,14 +47,21 @@ jobs:
 
     - name: Create PR for develop-refactor-current
       if: env.changes == 'true'
-      uses: peter-evans/create-pull-request@v7
-      with:
-        token: ${{ secrets.GITHUB_TOKEN }}
-        branch: develop-refactor-current-merge
-        base: develop-refactor-current
-        title: 'Merge develop into develop-refactor-current'
-        body: 'Automated merge of develop into develop-refactor-current'
-        delete-branch: true
+      run: |
+        gh pr create --base develop-refactor-current-merge --head develop-refactor-current 
+        --title 'Merge develop into evelop-refactor-current ' 
+        --body 'Automated merge of develop into evelop-refactor-current'
+
+    # - name: Create PR for develop-refactor-current
+    #   if: env.changes == 'true'
+    #   uses: peter-evans/create-pull-request@v7
+    #   with:
+    #     token: ${{ secrets.GITHUB_TOKEN }}
+    #     branch: develop-refactor-current-merge
+    #     base: develop-refactor-current
+    #     title: 'Merge develop into develop-refactor-current'
+    #     body: 'Automated merge of develop into develop-refactor-current'
+    #     delete-branch: true
 
     # - name: Check for changes between develop-refactor-current and develop-main-next-1
     #   id: check_changes_main_next_1

@@ -51,7 +51,7 @@ jobs:
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
-        gh pr create --base develop-refactor-current --head develop-refactor-current-merge --title 'Merge develop into evelop-refactor-current' --body 'Automated merge of develop into evelop-refactor-current'
+        gh pr create --base develop-refactor-current --head develop-refactor-current-merge --title 'Merge develop into develop-refactor-current' --body 'Automated merge of develop into evelop-refactor-current'
     
     - name: Wait for PR checks to complete
       if: env.changes == 'true'

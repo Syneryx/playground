@@ -8,6 +8,7 @@ on:
 jobs:
   merge_cascade:
     runs-on: ubuntu-latest
+    timeout-minutes: 60 # Set a timeout for the workflow run
 
     steps:
     - name: Checkout
@@ -43,17 +44,57 @@ jobs:
           exit 1
         }
         git push origin develop-refactor-current-merge
-      # if we use push origin develop-refactor-current, and it is allowed it will just push w/o pr
 
     - name: Create PR for develop-refactor-current
       if: env.changes == 'true'
-      uses: peter-evans/create-pull-request@v7
-      with:
-        token: ${{ secrets.GITHUB_TOKEN }}
-        base: develop-refactor-current-merge
-        branch: develop-refactor-current
-        title: 'Merge develop into develop-refactor-current'
-        body: 'Automated merge of develop into develop-refactor-current'
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        gh pr create --base develop-refactor-current --head develop-refactor-current-merge --title 'Merge develop into develop-refactor-current' --body 'Automated merge of develop into develop-refactor-current'
+
+    - name: Add 'automated' label to PR
+      if: env.changes == 'true'
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        pr_url=$(gh pr view --json url --jq '.url' develop-refactor-current-merge)
+        pr_number=$(gh pr view $pr_url --json number --jq '.number')
+        gh pr edit $pr_number --add-label "automated"
+
+    # Still have to figure this one out.
+    # - name: Wait for PR checks to complete
+    #   if: env.changes == 'true'
+    #   env:
+    #     GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    #   run: |
+    #     pr_url=$(gh pr view --json url --jq '.url' develop-refactor-current-merge)
+    #     while true; do
+    #       status_check_rollup=$(gh pr view $pr_url --json statusCheckRollup --jq '.statusCheckRollup')
+    #       if [[ $status_check_rollup == 'completed' ]]; then
+    #         break
+    #       fi
+    #       echo "Waiting for PR checks to complete..."
+    #       sleep 60
+    #     done
+
+    - name: Complete PR after checks
+      if: env.changes == 'true'
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        pr_url=$(gh pr view --json url --jq '.url' develop-refactor-current-merge)
+        gh pr merge $pr_url --auto --merge --delete-branch
+
+    # - name: Create PR for develop-refactor-current
+    #   if: env.changes == 'true'
+    #   uses: peter-evans/create-pull-request@v7
+    #   with:
+    #     token: ${{ secrets.GITHUB_TOKEN }}
+    #     branch: develop-refactor-current-merge
+    #     base: develop-refactor-current
+    #     title: 'Merge develop into develop-refactor-current'
+    #     body: 'Automated merge of develop into develop-refactor-current'
+    #     delete-branch: true
 
     # - name: Check for changes between develop-refactor-current and develop-main-next-1
     #   id: check_changes_main_next_1

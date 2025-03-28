@@ -54,7 +54,7 @@ jobs:
         base: develop-refactor-current
         title: 'Merge develop into develop-refactor-current'
         body: 'Automated merge of develop into develop-refactor-current'
-        delete-branch: true
+        delete-branch: false
 
     # - name: Check for changes between develop-refactor-current and develop-main-next-1
     #   id: check_changes_main_next_1

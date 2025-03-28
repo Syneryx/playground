@@ -43,6 +43,7 @@ jobs:
           exit 1
         }
         git push origin develop-refactor-current-merge
+      # if we use push origin develop-refactor-current, and it is allowed it will just push w/o pr
 
     - name: Create PR for develop-refactor-current
       if: env.changes == 'true'

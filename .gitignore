@@ -6,6 +6,7 @@
 # Custom added
 # rider
 .idea/
+MyPlaygroundWebApi/.idea/
 
 # dotenv files
 .env

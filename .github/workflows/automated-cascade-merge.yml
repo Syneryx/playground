@@ -34,8 +34,6 @@ jobs:
 
     - name: Merge develop into develop-refactor-current
       if: env.changes == 'true'
-      env:
-        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
         git fetch origin
         git checkout -b develop-refactor-current-merge origin/develop-refactor-current
@@ -49,6 +47,8 @@ jobs:
 
     - name: Create PR for develop-refactor-current
       if: env.changes == 'true'
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
         gh pr create --base develop-refactor-current-merge --head develop-refactor-current 
         --title 'Merge develop into evelop-refactor-current ' 

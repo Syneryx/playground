@@ -35,7 +35,7 @@ jobs:
       run: |
         git fetch origin
         git checkout develop-refactor-current
-        git merge origin/develop --allow-unrelated-histories || echo "Conflict detected" && exit 1
+        git merge origin/develop || echo "Conflict detected" && exit 1
         git push origin develop-refactor-current
 
     - name: Create PR for develop-refactor-current
@@ -64,7 +64,7 @@ jobs:
       run: |
         git fetch origin
         git checkout develop-main-next-1
-        git merge origin/develop-refactor-current --allow-unrelated-histories || echo "Conflict detected" && exit 1
+        git merge origin/develop-refactor-current || echo "Conflict detected" && exit 1
         git push origin develop-main-next-1
 
     - name: Create PR for develop-main-next-1
@@ -93,7 +93,7 @@ jobs:
       run: |
         git fetch origin
         git checkout develop-refactor-next-1
-        git merge origin/develop-main-next-1 --allow-unrelated-histories || echo "Conflict detected" && exit 1
+        git merge origin/develop-main-next-1 || echo "Conflict detected" && exit 1
         git push origin develop-refactor-next-1
 
     - name: Create PR for develop-refactor-next-1

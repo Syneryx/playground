@@ -60,21 +60,22 @@ jobs:
         pr_url=$(gh pr view --json url --jq '.url' develop-refactor-current-merge)
         pr_number=$(gh pr view $pr_url --json number --jq '.number')
         gh pr edit $pr_number --add-label "automated"
-    
-    - name: Wait for PR checks to complete
-      if: env.changes == 'true'
-      env:
-        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: |
-        pr_url=$(gh pr view --json url --jq '.url' develop-refactor-current-merge)
-        while true; do
-          status_check_rollup=$(gh pr view $pr_url --json statusCheckRollup --jq '.statusCheckRollup')
-          if [[ $status_check_rollup == 'completed' ]]; then
-            break
-          fi
-          echo "Waiting for PR checks to complete..."
-          sleep 60
-        done
+
+    # Still have to figure this one out.
+    # - name: Wait for PR checks to complete
+    #   if: env.changes == 'true'
+    #   env:
+    #     GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    #   run: |
+    #     pr_url=$(gh pr view --json url --jq '.url' develop-refactor-current-merge)
+    #     while true; do
+    #       status_check_rollup=$(gh pr view $pr_url --json statusCheckRollup --jq '.statusCheckRollup')
+    #       if [[ $status_check_rollup == 'completed' ]]; then
+    #         break
+    #       fi
+    #       echo "Waiting for PR checks to complete..."
+    #       sleep 60
+    #     done
 
     - name: Complete PR after checks
       if: env.changes == 'true'

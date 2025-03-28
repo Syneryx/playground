@@ -8,6 +8,7 @@ on:
 jobs:
   merge_cascade:
     runs-on: ubuntu-latest
+    timeout-minutes: 60 # Set a timeout for the workflow run
 
     steps:
     - name: Checkout
@@ -51,6 +52,29 @@ jobs:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
         gh pr create --base develop-refactor-current --head develop-refactor-current-merge --title 'Merge develop into evelop-refactor-current' --body 'Automated merge of develop into evelop-refactor-current'
+    
+    - name: Wait for PR checks to complete
+      if: env.changes == 'true'
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        pr_url=$(gh pr view --json url --jq '.url' develop-refactor-current-merge)
+        while true; do
+          pr_status=$(gh pr checks $pr_url --json status --jq '.status')
+          if [[ $pr_status == 'completed' ]]; then
+            break
+          fi
+          echo "Waiting for PR checks to complete..."
+          sleep 60
+        done
+
+    - name: Complete PR after checks
+      if: env.changes == 'true'
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        pr_url=$(gh pr view --json url --jq '.url' develop-refactor-current-merge)
+        gh pr merge $pr_url --auto --merge --delete-branch
 
     # - name: Create PR for develop-refactor-current
     #   if: env.changes == 'true'

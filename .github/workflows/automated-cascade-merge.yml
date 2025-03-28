@@ -50,8 +50,8 @@ jobs:
       uses: peter-evans/create-pull-request@v7
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
-        base: develop-refactor-current-merge
-        branch: develop-refactor-current
+        branch: develop-refactor-current-merge
+        base: develop-refactor-current
         title: 'Merge develop into develop-refactor-current'
         body: 'Automated merge of develop into develop-refactor-current'
 

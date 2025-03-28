@@ -15,7 +15,7 @@ jobs:
  
     - name: Set up Git
       run: |
-        git config --global user.name 'github-actions'
+        git config --global user.name 'automated-github-actions-via-hans'
         git config --global user.email 'hans.boeren@qframe.be'
 
     - name: Check for changes between develop and develop-refactor-current

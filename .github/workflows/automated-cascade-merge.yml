@@ -3,6 +3,7 @@ name: Cascade Merge
 on:
   schedule:
     - cron: '0 0 * * *' # Runs every day at midnight UTC
+  workflow_dispatch: # Allows manual triggering of the workflow - via the ui ?
  
 jobs:
   merge_cascade:

@@ -35,7 +35,7 @@ jobs:
       run: |
         git fetch origin
         git checkout develop-refactor-current
-        git merge origin/develop --allow-unrelated-histories || {
+        git merge origin/develop || {
           echo "Conflict detected, aborting merge"
           git merge --abort
           exit 1

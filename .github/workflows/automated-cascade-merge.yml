@@ -36,20 +36,20 @@ jobs:
       if: env.changes == 'true'
       run: |
         git fetch origin
-        git checkout develop-refactor-current
+        git checkout -b develop-refactor-current-merge origin/develop-refactor-current
         git merge origin/develop || {
           echo "Conflict detected, aborting merge"
           git merge --abort
           exit 1
         }
-        git push origin develop-refactor-current
+        git push origin develop-refactor-current-merge
 
     - name: Create PR for develop-refactor-current
       if: env.changes == 'true'
       uses: peter-evans/create-pull-request@v3
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
-        branch: develop-refactor-current
+        branch: develop-refactor-current-merge
         title: 'Merge develop into develop-refactor-current'
         body: 'Automated merge of develop into develop-refactor-current'
 

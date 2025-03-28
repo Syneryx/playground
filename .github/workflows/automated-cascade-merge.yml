@@ -24,48 +24,66 @@ jobs:
         git checkout develop-refactor-current 
         git merge origin/develop || echo "Conflict detected" && exit 1
         git push origin develop-refactor-current 
- 
+  
+    - name: Check for changes in develop-refactor-current 
+      id: check_changes_refactor
+      run: |
+        git fetch origin
+        git diff --quiet origin/develop-refactor-current origin/develop || echo "Changes detected"
+
     - name: Create PR for develop-refactor-current 
-      if: success()
+      if: steps.check_changes_refactor.outputs.changes == 'Changes detected'
       uses: peter-evans/create-pull-request@v3
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
         branch: develop-refactor-current 
         title: 'Merge develop into develop-refactor-current '
         body: 'Automated merge of develop into develop-refactor-current '
- 
+
     - name: Merge develop-refactor-current  into develop-main-next-1
       run: |
         git fetch origin
         git checkout develop-main-next-1
         git merge origin/develop-refactor-current  || echo "Conflict detected" && exit 1
         git push origin develop-main-next-1
- 
+
+    - name: Check for changes in develop-main-next-1
+      id: check_changes_main_next_1
+      run: |
+        git fetch origin
+        git diff --quiet origin/develop-main-next-1 origin/develop-refactor-current  || echo "Changes detected"
+
     - name: Create PR for develop-main-next-1
-      if: success()
+      if: steps.check_changes_main_next_1.outputs.changes == 'Changes detected'
       uses: peter-evans/create-pull-request@v3
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
         branch: develop-main-next-1
         title: 'Merge develop-refactor-current  into develop-main-next-1'
         body: 'Automated merge of develop-refactor-current  into develop-main-next-1'
- 
+
     - name: Merge develop-main-next-1 into develop-refactor-next-1
       run: |
         git fetch origin
         git checkout develop-refactor-next-1
         git merge origin/develop-main-next-1 || echo "Conflict detected" && exit 1
         git push origin develop-refactor-next-1
- 
+
+    - name: Check for changes in develop-refactor-next-1
+      id: check_changes_refactor_next_1
+      run: |
+        git fetch origin
+        git diff --quiet origin/develop-refactor-next-1 origin/develop-main-next-1 || echo "Changes detected"
+
     - name: Create PR for develop-refactor-next-1
-      if: success()
+      if: steps.check_changes_refactor_next_1.outputs.changes == 'Changes detected'
       uses: peter-evans/create-pull-request@v3
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
         branch: develop-refactor-next-1
         title: 'Merge develop-main-next-1 into develop-refactor-next-1'
         body: 'Automated merge of develop-main-next-1 into develop-refactor-next-1'
- 
+
     - name: Notify team of conflicts
       if: failure()
       run: |

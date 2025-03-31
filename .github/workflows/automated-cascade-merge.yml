@@ -1,8 +1,8 @@
 name: Cascade Merge
 
 on:
-  schedule:
-    - cron: '0 0 * * *' # Runs every day at midnight UTC
+  #schedule:
+  #  - cron: '0 0 * * *' # Runs every day at midnight UTC
   workflow_dispatch:
 
 jobs:
@@ -62,20 +62,25 @@ jobs:
         gh pr edit $pr_number --add-label "automated"
 
     # Still have to figure this one out.
-    # - name: Wait for PR checks to complete
-    #   if: env.changes == 'true'
-    #   env:
-    #     GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    #   run: |
-    #     pr_url=$(gh pr view --json url --jq '.url' develop-refactor-current-merge)
-    #     while true; do
-    #       status_check_rollup=$(gh pr view $pr_url --json statusCheckRollup --jq '.statusCheckRollup')
-    #       if [[ $status_check_rollup == 'completed' ]]; then
-    #         break
-    #       fi
-    #       echo "Waiting for PR checks to complete..."
-    #       sleep 60
-    #     done
+    - name: Wait for PR checks to complete
+      if: env.changes == 'true'
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        pr_url=$(gh pr view --json url --jq '.url' develop-refactor-current-merge)
+        while true; do
+          merge_state_status=$(gh pr view $pr_url --json mergeStateStatus --jq '.mergeStateStatus')
+          if [[ $merge_state_status == 'BLOCKED' ]]; then
+            echo "Merge state is BLOCKED. Exiting..."
+            exit 1
+          elif [[ $merge_state_status == 'CLEAN' || $merge_state_status == 'UNSTABLE' ]]; then
+            echo "Merge state is $merge_state_status. Breaking loop..."
+            break
+          else
+            echo "Current merge state: $merge_state_status. Waiting for PR checks to complete..."
+            sleep 60
+          fi
+        done
 
     - name: Complete PR after checks
       if: env.changes == 'true'

@@ -61,7 +61,7 @@ jobs:
         pr_number=$(gh pr view $pr_url --json number --jq '.number')
         gh pr edit $pr_number --add-label "automated"
 
-    # Still have to figure this one out.
+    # This works kind off, not optimal or cost effective
     - name: Wait for PR checks to complete
       if: env.changes == 'true'
       env:
